@@ -1,5 +1,6 @@
-<script type="text/javascript">
+<script>
 
-{$script_header}
+{$script_header nofilter}
 
 </script>
+
