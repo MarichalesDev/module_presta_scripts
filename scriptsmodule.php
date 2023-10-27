@@ -63,19 +63,21 @@ public function getContent()
     // this part is executed only when the form is submitted
     if (Tools::isSubmit('submit' . $this->name)) {
         // retrieve the value set by the user
-        $configValue = (string) Tools::getValue('SCRIPT_HEADER');
-
+        $s_header = (string) Tools::getValue('SCRIPT_HEADER');
+        $s_footer = (string) Tools::getValue('SCRIPT_FOOTER');
+   
         // check that the value is valid
-        if (empty($configValue) || !Validate::isGenericName($configValue)) {
+        if (empty($s_header) && empty($s_footer) || !Validate::isGenericName($s_header) && !Validate::isGenericName($s_footer)) {
             // invalid value, show an error
             $output = $this->displayError($this->l('Invalid Configuration value'));
         } else {
             // value is ok, update it and display a confirmation message
-            Configuration::updateValue('SCRIPT_HEADER', $configValue);
+            html_entity_decode(Configuration::updateValue('SCRIPT_HEADER', $s_header));
+            html_entity_decode(Configuration::updateValue('SCRIPT_FOOTER', $s_footer));
             $output = $this->displayConfirmation($this->l('Settings updated'));
         }
     }
-
+   
     // display any message, then the form
     return $output . $this->displayForm();
 }
@@ -83,6 +85,7 @@ public function getContent()
 /**
  * Builds the configuration form
  * @return string HTML code
+ * 
  */
 public function displayForm()
 {
@@ -118,7 +121,6 @@ public function displayForm()
             'submit' => [
                 'title' => $this->l('Save'),
                 'class' => 'btn btn-default pull-right',
-                'id' => 'BUTTON_SUBMIT' 
             ],
         ],
     ];
@@ -137,6 +139,7 @@ public function displayForm()
 
     // Load current value into the form
     $helper->fields_value['SCRIPT_HEADER'] = Tools::getValue('SCRIPT_HEADER', Configuration::get('SCRIPT_HEADER'));
+    $helper->fields_value['SCRIPT_FOOTER'] = Tools::getValue('SCRIPT_FOOTER', Configuration::get('SCRIPT_FOOTER'));
 
     return $helper->generateForm([$form]);
 }
@@ -158,3 +161,6 @@ public function HookdisplayTop(){
   }
 
 }
+
+
+
