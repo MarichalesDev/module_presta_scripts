@@ -41,6 +41,7 @@ class ScriptsModule extends Module
             && Configuration::updateValue('MYMODULE_NAME', 'scriptsmodule')
             && $this->registerHook('displayTop')
             && $this->registerHook('displayFooter')
+            && $this->registerHook('displayHome')
         ); 
     }
 
@@ -65,15 +66,21 @@ public function getContent()
         // retrieve the value set by the user
         $s_header = (string) Tools::getValue('SCRIPT_HEADER');
         $s_footer = (string) Tools::getValue('SCRIPT_FOOTER');
-   
+        $add_css = (string) Tools::getValue('ADD_CSS');
         // check that the value is valid
-        if (empty($s_header) && empty($s_footer) || !Validate::isGenericName($s_header) && !Validate::isGenericName($s_footer)) {
+        if (
+            empty($s_header) && empty($s_footer) && empty($add_css) 
+            || !Validate::isGenericName($s_header) 
+             && !Validate::isGenericName($s_footer)
+             && !Validate::isGenericName($add_css)
+            ) {
             // invalid value, show an error
             $output = $this->displayError($this->l('Invalid Configuration value'));
         } else {
             // value is ok, update it and display a confirmation message
             html_entity_decode(Configuration::updateValue('SCRIPT_HEADER', $s_header));
             html_entity_decode(Configuration::updateValue('SCRIPT_FOOTER', $s_footer));
+            html_entity_decode(Configuration::updateValue('ADD_CSS', $add_css));
             $output = $this->displayConfirmation($this->l('Settings updated'));
         }
     }
@@ -140,6 +147,7 @@ public function displayForm()
     // Load current value into the form
     $helper->fields_value['SCRIPT_HEADER'] = Tools::getValue('SCRIPT_HEADER', Configuration::get('SCRIPT_HEADER'));
     $helper->fields_value['SCRIPT_FOOTER'] = Tools::getValue('SCRIPT_FOOTER', Configuration::get('SCRIPT_FOOTER'));
+    $helper->fields_value['ADD_CSS'] = Tools::getValue('ADD_CSS', Configuration::get('ADD_CSS'));
 
     return $helper->generateForm([$form]);
 }
@@ -158,6 +166,14 @@ public function HookdisplayTop(){
         'script_footer' => $script_footer,
     ]);
     return $this->display(__FILE__ ,'templates/hook/views/scriptsmodule_footer.tpl');
+  }
+
+  public function HookdisplayHome(){
+    $add_css = Configuration::get('ADD_CSS');
+    $this->context->smarty->assign([
+        'add_css' => $add_css,
+    ]);
+    return $this->display(__FILE__ ,'templates/hook/views/stylecss_module.tpl');
   }
 
 }
